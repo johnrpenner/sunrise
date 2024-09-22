@@ -4,9 +4,6 @@
 // 
 // Created by John Penner on 2021-11-26.
 // Copyright © 2024 John Penner. All rights reserved.
-//
-// http://www.best.com/~williams/sunrise_sunset_algorithm.htm
-// http://www.best.com/~williams/sunrise_sunset_example.htm
 // 
 // Source:
 //   Almanac for Computers, 1990
