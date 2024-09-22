@@ -1,4 +1,4 @@
-# sunrise 0.7
+# sunrise 2.1
 sunrise is Swift commandline that computes sunrise sunset times given latitude longitude and date. It also computes Synodic Lunar Phase. 
 
 The Sunrise Sunset code is written entirely by me based off a FutureBASIC implementation I wrote in 2001. It was literally implemented from a manual method decscribed in the Nautical Almanac for Computers (1990), published by the United States Naval Observatory in Washington. 
@@ -9,7 +9,7 @@ The essential motivation of this project is to connect the digital world to the 
 
 Ive borrowed bits and snippets from available sources (and tried to give attribution to each in the comments) to bring together everything that is needed to provide basic astronimical calculations into the Swift language - when I was unable to find Swift implementations of many of these basic computations. 
 
-The original code (v0.5) failed on the Daylight (Not) Savings Change — so v0.7 added an API call to macOS CoreLocation which adds the requirement of this Library to account for Daylight (Not) Savings based on Time Zone and Location (not easy!). 
+The original code (v2.0) failed on the Daylight (Not) Savings Change — so v2.1 added an API call to macOS CoreLocation which adds the requirement of this Library to account for Daylight (Not) Savings based on Time Zone and Location (not easy!). 
 
 I have used it now for several years, and it correlates accurately (within 30seconds) with every local weather Sunrise Sunset. Ive checked this now for over two years (in Toronto only), without a fail. I need testers in other locations to verify accurate results, and submit bug fixes if any are necessary. 
 
