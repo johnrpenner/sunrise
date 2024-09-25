@@ -1,10 +1,9 @@
-//
-// SunRise 2.1 by johnRolandPenner     [May.2.2022]
+// SunRise 2.1 by johnRolandPenner     [Sept.25.2024]
 // SunRise 1.0 by johnPenner*mac*com   [Sept.5.2001]
 // 
 // Created by John Penner on 2021-11-26.
 // Copyright © 2024 John Penner. All rights reserved.
-// 
+//
 // Source:
 //   Almanac for Computers, 1990
 //   published by Nautical Almanac Office
@@ -227,7 +226,10 @@ import CoreLocation
 		
 		// JDN = Julian Day Number. Angles are in Degrees
 		// DateTime(1980).jdn yields 2444239.5 -- which one is right?
-		let epoch : Float = 2444238.5	// 1980 January 0.0 in Julian JDN
+		
+		let epoch : Float = 2444239.5	// 1980 January 0.0 in Julian JDN
+		//let epoch : Float = 2444238.5	// 1980 January 0.0 in Julian JDN  i think this is wrong
+		
 		let ecliptic_longitude_epoch : Float = 278.833540	// Ecliptic longitude of the Sun at epoch 1980.0
 		let ecliptic_longitude_perigee : Float = 282.596403	// Ecliptic longitude of the Sun at perigee
 		let eccentricity : Float = 0.016718	// Eccentricity of Earth's orbit
@@ -400,7 +402,8 @@ import CoreLocation
 		let C = 2-A+B
 		let E = 365.25 * (Float(year)+4716)
 		let F = 30.6001 * (Float(month)+1)
-		let JD = Float(C)+Float(day)+E+F-1524.5
+		var JD = Float(C)+Float(day)+E+F-1524.5
+		JD = JD + 1		// off by 1
 		
 		let synodic_month : Float = 29.53058770576
 		
@@ -453,7 +456,7 @@ import CoreLocation
 	
 	func printHelp()
 	{
-		print("SUNRISE: Calculates Sunrise Sunset + Moonphase  ©2022 johnrolandpenner")
+		print("SUNRISE: Calculates Sunrise Sunset + Moonphase  ©2024 johnrolandpenner")
 		print("Usage: ")
 		print("sunrise [mm dd yyyy] [latitude longitude timezone verbose]")
 		print("e.g. sunrise 12 18 2021 43.6532 -79.3832 -5 1")
