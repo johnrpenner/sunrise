@@ -421,7 +421,7 @@ import CoreLocation
     func moonDay2emoji(day:Float) -> String
     {
         let offset : Int = Int(day)
-        let phaseSTR : String = "🌑🌒🌒🌒🌒🌒🌓🌓🌓🌔🌔🌔🌔🌔🌕🌕🌕🌖🌖🌖🌖🌖🌗🌗🌘🌘🌘🌘🌘🌑🌑"
+        let phaseSTR : String = "🌑🌒🌒🌒🌒🌒🌒🌒🌒🌓🌔🌔🌔🌔🌔🌕🌖🌖🌖🌖🌖🌖🌗🌘🌘🌘🌘🌘🌘🌑🌑"
         let moonEmoji : String = midString(theString:phaseSTR, charIndex:offset, range:1)
         return moonEmoji
     }
