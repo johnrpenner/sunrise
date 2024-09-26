@@ -1,4 +1,4 @@
-// SunRise 2.1 by johnRolandPenner     [Sept.25.2024]
+// SunRise 2.5 by johnRolandPenner     [Sept.26.2024]
 // SunRise 1.0 by johnPenner*mac*com   [Sept.5.2001]
 // 
 // Created by John Penner on 2021-11-26.
@@ -60,10 +60,13 @@ import CoreLocation
 	func midString(theString:String, charIndex:Int, range:Int) -> String
 	{
 		// swift3
-		let start = theString.index(theString.startIndex, offsetBy: charIndex)
-		let end = theString.index(theString.startIndex, offsetBy: charIndex+range)
-		let span = start..<end
-		return String(theString[span])
+		if (theString.count >= charIndex + range) { 
+			let start = theString.index(theString.startIndex, offsetBy: charIndex)
+			let end = theString.index(theString.startIndex, offsetBy: charIndex+range)
+			let span = start..<end
+			return String(theString[span])
+			}
+		return ""
 	}
 
 
@@ -223,143 +226,135 @@ import CoreLocation
 		// Ported to Python by Kevin Turner under a full moon (2001)
 		// Ported to Swift by John Roland Penner under a full moon (2021)
 		// Original Algorithm from: Practical Astronomy with your Calculator by Peter Duffett-Smith (1981)
-		
 		// JDN = Julian Day Number. Angles are in Degrees
-		// DateTime(1980).jdn yields 2444239.5 -- which one is right?
 		
-		let epoch : Float = 2444239.5	// 1980 January 0.0 in Julian JDN
-		//let epoch : Float = 2444238.5	// 1980 January 0.0 in Julian JDN  i think this is wrong
+		/* 
+		PHASE -- Calculate phase of moon as a fraction: 
+		The argument is the time for which the phase is requested, 
+		expressed as a Julian date and fraction. Returns the terminator phase angle 
+		as a percentage of a full circle (i.e. 0 to 1), and stores into pointer 
+		arguments: the Illuminated fraction of the Moon's disc, 
+		the Moon's age in days and fraction, the distance of the Moon 
+		from the centre of the Earth, and the angular diameter subtended 
+		by the Moon as seen by an observer at the centre of the Earth. 
+		*/
 		
-		let ecliptic_longitude_epoch : Float = 278.833540	// Ecliptic longitude of the Sun at epoch 1980.0
-		let ecliptic_longitude_perigee : Float = 282.596403	// Ecliptic longitude of the Sun at perigee
-		let eccentricity : Float = 0.016718	// Eccentricity of Earth's orbit
-		let sun_smaxis : Float = 1.49585e8	// Semi-major axis of Earth's orbit, in kilometers
-		let sun_angular_size_smaxis : Float = 0.533128	// Sun's angular size, in degrees, at semi-major axis distance
 		
-		// Elements of the Moon's orbit, epoch 1980.0
-		let moon_mean_longitude_epoch : Float = 64.975464	// Moon's mean longitude at the epoch
-		let moon_mean_perigee_epoch : Float = 349.383063	// Mean longitude of the perigee at the epoch
-		let node_mean_longitude_epoch : Float = 151.950429	// Mean longitude of the node at the epoch
-		let moon_inclination : Float = 5.145396	// Inclination of the Moon's orbit
-		let moon_eccentricity : Float = 0.054900	// Eccentricity of the Moon's orbit
-		let moon_angular_size : Float = 0.5181	// Moon's angular size at distance a from Earth
-		let moon_smaxis : Float = 384401.0	// Semi-mojor axis of the Moon's orbit, in kilometers
-		let moon_parallax : Float = 0.9507	// Parallax at a distance a from Earth		
-		let synodic_month : Float = 29.53058770576	// Synodic month (new Moon to new Moon), in days
-		let lunations_base : Float = 2423436.0	// E.W. Brown's Base Date of Numbered Lunations (Jan.16.1923)
-		let earth_radius : Float = 6378.16	// Properties of the Earth
-		
-			
-		//let age : Float = synodic_month * fixangle(moon_age) / 360.0
-		let age : Float = 1.618
-		
-//		
-		// Calculate Julian Day
+		// Calculate Julian Day																				// pDate = Julian Date for which to calculate Phase
 		let A = year / 100
 		let B = A / 4
 		let C = 2-A+B
 		let E = 365.25 * (Float(year)+4716)
-		let F = 30.6001 * (Float(month)+1)
-		let JD = Float(C)+Float(day)+E+F-1524.5
-//		
-	
-/*  	FIND: THIS BLOCK OF CODE STILL REQUIRES TRANSLATION TO SWIFT LANGUAGE
-
-		//-- Calculate Sun's Position --//
+		let Fj = 30.6001 * (Float(month)+1)
+		let JD = Float(C)+Float(day)+E+Fj-1524.5
+		let pDate = JD + 1																					// off by 1
 		
-		// Date within the Epoch
-		let eday = JD - epoch
 		
-		// Mean anomaly of the Sun
-		let N = fixangle(angle: (360/365.2422) * eday)
-		// Convert from perigee coordinates to epoch 1980
-		let M = fixangle(angle: N + ecliptic_longitude_epoch - ecliptic_longitude_perigee)
-
-
-		// Solve Kepler's equation
-		var Ec = kepler(M, eccentricity)
+		//-- Astronomical constants --// 
+		let epoch : Float = 2444238.5																		// 1980 January 0.0 in Julian JDN (Moontool by John Walker)
+		
+		// Constants defining the Sun's apparent orbit
+		let ecliptic_longitude_epoch : Float = 278.833540												// Ecliptic longitude of the Sun at epoch 1980.0
+		let ecliptic_longitude_perigee : Float = 282.596403											// Ecliptic longitude of the Sun at perigee
+		let eccentricity : Float = 0.016718																// Eccentricity of Earth's orbit
+		let sun_smaxis : Float = 1.49585e8																	// Semi-major axis of Earth's orbit, in kilometers
+		let sun_angular_size_smaxis : Float = 0.533128													// Sun's angular size, in degrees, at semi-major axis distance
+		
+		// Elements of the Moon's orbit, epoch 1980.0
+		let moon_mean_longitude_epoch : Float = 64.975464												// Moon's mean longitude at the epoch
+		let moon_mean_perigee_epoch : Float = 349.383063												// Mean longitude of the perigee at the epoch
+		let node_mean_longitude_epoch : Float = 151.950429											// Mean longitude of the node at the epoch
+		let moon_inclination : Float = 5.145396																// Inclination of the Moon's orbit
+		let moon_eccentricity : Float = 0.054900															// Eccentricity of the Moon's orbit
+		let moon_angular_size : Float = 0.5181															// Moon's angular size at distance a from Earth
+		let moon_smaxis : Float = 384401.0																	// Semi-major axis of the Moon's orbit, in kilometers
+		let moon_parallax : Float = 0.9507																	// Parallax at a distance a from Earth
+		let synodic_month : Float = 29.53058770576														// Synodic month (new Moon to new Moon), in days
+		let lunations_base : Float = 2423436.0															// E.W. Brown's Base Date of Numbered Lunations (Jan.16.1923)
+		
+		// Properties of the Earth
+		let earth_radius : Float = 6378.16																	// Radius of Earth in kilometres
+		
+		
+		//-- Calculation of the Sun's position --//
+		let eDay = pDate - epoch																			// Date within the Epoch
+		let N = fixangle(angle: (360/365.2422) * eDay)													// Mean anomaly of the Sun
+		let M = fixangle(angle: N + ecliptic_longitude_epoch - ecliptic_longitude_perigee)		// Convert from perigee coordinates to epoch 1980
+		
+		var Ec = kepler(epoch: M, eccentricity: eccentricity)											// Solve equation of Kepler
 		Ec = sqrt((1 + eccentricity) / (1 - eccentricity)) * tan(Ec/2.0)
-		// True anomaly
-		Ec = 2 * todeg(radians: atan(Ec))
-		// Sun's geometric ecliptic longitude
-		let lambda_sun = fixangle(angle:Ec + ecliptic_longitude_perigee)
+		Ec = 2 * todeg(radians: atan(Ec))																	// True anomaly
+		let Lambdasun = fixangle(angle:Ec + ecliptic_longitude_perigee)							// Sun's geometric ecliptic longitude
 		
 		// Orbital distance factor
-		// F = ((1 + c.eccentricity * cos(torad(Ec))) / (1 - c.eccentricity**2))
-		let F = ((1 + eccentricity * cos(torad(degrees:Ec))) / (1 - eccentricity^2))
+		let F = ((1 + eccentricity * cos(torad(degrees:Ec))) / (1 - eccentricity * eccentricity))
+		let sun_dist = sun_smaxis / F																			// Distance to Sun in km
+		let sun_angular_diameter = F * sun_angular_size_smaxis
 		
-		// Distance to Sun in km
-		let sun_dist = sun_smaxis / F
-		let sun_angular_diameter = F * .sun_angular_size_smaxis
+		//-- Calculation of the Moon's position --//
+		let moon_longitude = fixangle(angle: 13.1763966 * eDay + moon_mean_longitude_epoch)			// Moon's mean longitude
+		let MM = fixangle(angle: moon_longitude - 0.1114041 * eDay - moon_mean_perigee_epoch)		// Moon's mean anomaly
+		let MN = fixangle(angle: node_mean_longitude_epoch - 0.0529539 * eDay)							// Moon's ascending node mean longitude
+		let Ev = 1.2739 * sin(torad(degrees: 2*(moon_longitude - Lambdasun) - MM))				// Evection
+		let annual_eq = 0.1858 * sin(torad(degrees: M))													// Annual equation
+		let A3 = 0.37 * sin(torad(degrees: M))															// Correction term
+		let MmP = MM + Ev - annual_eq - A3																// Corrected anomaly
 		
-		
-		//-- Calculate Moon's Position --//
-
-		// Moon's mean longitude
-		moon_longitude = fixangle(13.1763966 * eday + c.moon_mean_longitude_epoch)
-
-		// Moon's mean anomaly
-		MM = fixangle(moon_longitude - 0.1114041 * eday - c.moon_mean_perigee_epoch)
-
-		// Moon's ascending node mean longitude
-		// MN = fixangle(c.node_mean_longitude_epoch - 0.0529539 * eday)
-		evection = 1.2739 * sin(torad(2*(moon_longitude - lambda_sun) - MM))
-
-		// Annual equation
-		annual_eq = 0.1858 * sin(torad(M))
-
-		// Correction term
-		A3 = 0.37 * sin(torad(M))
-		MmP = MM + evection - annual_eq - A3
-
 		// Correction for the equation of the centre
-		mEc = 6.2886 * sin(torad(MmP))
-
-		// Another correction term
-		A4 = 0.214 * sin(torad(2 * MmP))
+		let mEc = 6.2886 * sin(torad(degrees: MmP))
+		let A4 = 0.214 * sin(torad(degrees: 2 * MmP))													// Another correction term
+		let lP = moon_longitude + Ev + mEc - annual_eq + A4											// Corrected longitude
+		let variation = 0.6583 * sin(torad(degrees: 2*(lP - Lambdasun)))								// Variation
+		let lPP = lP + variation																				// True longitude
 		
-		// Corrected longitude
-		lP = moon_longitude + evection + mEc - annual_eq + A4
-
-		// Variation
-		variation = 0.6583 * sin(torad(2*(lP - lambda_sun)))
-
-		// True longitude
-		lPP = lP + variation
-	
-	    // Age of the Moon, in degrees
-		moon_age = lPP - lambda_sun
-
-		// Phase of the Moon
-		moon_phase = (1 - cos(torad(moon_age))) / 2.0
-
+		// These Can Be Omitted for Moon Phase; only needed for Geometry
+		let NP = MN - 0.16 * sin(torad(degrees: M))														// Corrected longitude of the node
+		let y = sin(torad(degrees: lPP - NP)) * cos(torad(degrees: moon_inclination))				// Y inclination coordinate
+		let x = cos(torad(degrees: lPP - NP))																// X inclination coordinate
+		var Lambdamoon = todeg(radians: atan2(y, x))														// Ecliptic longitude
+		Lambdamoon = Lambdamoon + NP
+		let BetaM = todeg(radians: asin(sin(torad(degrees: lPP - NP)) * sin(torad(degrees: moon_inclination))))	// Ecliptic latitude
+		// end omit
+		
+		//-- Calculation of the Phase of the Moon --// 
+		let moon_age = lPP - Lambdasun																		// Age of the Moon in degrees
+		let moon_phase = (1 - cos(torad(degrees: moon_age))) / 2.0										// Phase of the Moon
+		
 		// Calculate distance of Moon from the centre of the Earth
-		moon_dist = (c.moon_smaxis * (1 - c.moon_eccentricity**2)) / (1 + c.moon_eccentricity * cos(torad(MmP + mEc)))
-	
+		let moon_dist = (moon_smaxis * (1 - moon_eccentricity * moon_eccentricity)) / (1 + moon_eccentricity * cos(torad(degrees: MmP + mEc)))
+		
 		// Calculate Moon's angular diameter
-		moon_diam_frac = moon_dist / c.moon_smaxis
-		moon_angular_diameter = c.moon_angular_size / moon_diam_frac
-
-		// END OF BLOCK OF CODE THAT NEEDS TRANSLATION
+		let moon_diam_frac = moon_dist / moon_smaxis
+		let moon_angular_diameter = moon_angular_size / moon_diam_frac
 		
-*/
-
-		// Calculate Moon's parallax (unused?)
-		// moon_parallax = c.moon_parallax / moon_diam_frac
-
-		/*res = {
-			'phase': fixangle(moon_age) / 360.0,
-			'illuminated': moon_phase,
-			'age': c.synodic_month * fixangle(moon_age) / 360.0 ,
-			'distance': moon_dist,
-			'angular_diameter': moon_angular_diameter,
-			'sun_distance': sun_dist,
-			'sun_angular_diameter': sun_angular_diameter
-			} */
-
-		//return res
+		// Calculate Moon's parallax (uncessary as we defined it in Constants)
+		//let moon_parallax = moon_parallax / moon_diam_frac
 		
-		return age
+		let mPhase = fixangle(angle: moon_age) / 360.0
+		let mIlluminated = moon_phase
+		let mAge = synodic_month * fixangle(angle: moon_age) / 360.0									// Moon Phase in Days
+		let mDistance = moon_dist
+		let mAngular_diameter = moon_angular_diameter
+		let mSun_distance = sun_dist
+		let mSun_angular_diameter = sun_angular_diameter
+		
+		print("Astronomical Moon Phase • mPhase \(mPhase) mIlluminated \(mIlluminated) mAge \(mAge) mDistance \(mDistance) moonAngDiam \(mAngular_diameter) mSunDist \(mSun_distance) mSunAngDiam \(mSun_angular_diameter) ")
+		
+				
+		// calculate days since the last new moon
+		//let daysSinceNew = JD - 2451549.5   // how we did it with Synodic Calculation
+		let daysSinceNew = mAge						// we do it here with Astronimical Days
+		
+		// calculate how many new moons there have been (in Number of Moon Cycles)
+		let newMoons : Float = daysSinceNew / synodic_month
+		
+		// Multpily Fractional Part by Moonphase(29.53days) to Find Days Into Cycle
+		let newMoonFrac : Float = newMoons.truncatingRemainder(dividingBy:1)
+		let moonDays : Float = newMoonFrac * synodic_month
+		
+		print("Moon Days \(moonDays)")
+		
+		return moonDays
 	}
 	
 	
@@ -389,11 +384,10 @@ import CoreLocation
 			
 		return kEccentricity
 	}
-
-
-
-//--alternate less accurate method----- 	
-
+	
+	
+	//-- Synodic Moon Phase (Less Accurate Method) -----// 
+	
     func moonDays(month:Int, day:Int, year:Int) -> Float
     {
 		// calculate Julian Day
@@ -498,6 +492,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
 			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
+			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)			
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -508,7 +503,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// Single Line Emoji Compact
 			print ("🌅 \(localSunriseSTR)  🌃 \(localSunsetSTR)  \(Moonphase) \(moonDaysPercentStr)% \(moonString)")
 			}
-
+		
 		// 1 = Single Line Text
 		if Verbose == 1 {
 			
@@ -534,6 +529,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
 			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
+			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -572,6 +568,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
 			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
+			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -613,6 +610,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
 			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
+			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -647,6 +645,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			
 			// Moonphase print ("Moonphase: 🌑🌒🌓🌔🌕🌖🌗🌘🌑 ")
 			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
+			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -654,7 +653,10 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			let moonDaysPercent : Float = Float(Float(moonDaysInt) / synodic_month) * 100
 			let moonDaysPercentStr : String = String(format: "%0.2f", moonDaysPercent)
 			
-			print ("\(Month)/\(Day)/\(Year) \(DSTstr) @Lat:\(Latitude) Long:\(Longitude) 🌅: \(localSunriseSTR) 🌃: \(localSunsetSTR) Moonphase: \(moonDaysPercentStr)% \(Moonphase) \(moonString)")
+			let MonthPadded : String = String(format: "%02d", Month)
+			let daysPadded : String = String(format: "%02d", Day)
+			
+			print ("\(MonthPadded)/\(daysPadded)/\(Year) \(DSTstr)  🌎 Lat:\(Latitude) Long:\(Longitude)  🌅 \(localSunriseSTR)  🌃 \(localSunsetSTR) Moonphase \(moonDaysPercentStr)% \(Moonphase) \(moonString)")
 			}
 		
 		return
@@ -666,10 +668,10 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 	// Manage ARGS
 	let argCount = CommandLine.argc
 	var timezonee : Float = -5	// UTC+0 = GMT Greenwich Meridian Time Default
-	let sunrise = true		   	// calculate sunrise[true] or sunset[false]
-	let twilight = false    	// calculate twilight[true] or sunrise-sunset[false]
+	let sunrise = true		   		// calculate sunrise[true] or sunset[false]
+	let twilight = false    		// calculate twilight[true] or sunrise-sunset[false]
 	var verbose : Bool = false	// default less verbose
-	var isDST : Bool			// we set this globally defining it here in MAIN
+	var isDST : Bool					// we set this globally defining it here in MAIN
 	
 	// Sunrise = calcSunrise(Latitude, Longitude, Date, True, False)
 	// Sunset  = calcSunrise(Latitude, Longitude, Date, False, False)
@@ -744,7 +746,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 		let argument3 = CommandLine.arguments[3]	//YYYY  [YYYY]
 		let argument4 = CommandLine.arguments[4]	//LATITUDE
 		let argument5 = CommandLine.arguments[5]	//LONGITUDE
-        let argument6 = CommandLine.arguments[6]    //TIMEZONE
+        let argument6 = CommandLine.arguments[6] //TIMEZONE
 		let argument7 = CommandLine.arguments[7]	//VERBOSE
 		
 		let month = Int(argument1)!
