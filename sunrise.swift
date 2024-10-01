@@ -1,4 +1,4 @@
-// SunRise 2.5 by johnRolandPenner     [Sept.26.2024]
+// SunRise 2.5 by johnRolandPenner     [Sept.30.2024]
 // SunRise 1.0 by johnPenner*mac*com   [Sept.5.2001]
 // 
 // Created by John Penner on 2021-11-26.
@@ -180,8 +180,8 @@ import CoreLocation
 		
 		// Step 7a. Calculate the Sun's local hour angle
 		let cosH : Float = (cosD(n:zenith) - (sinDec * sinD(n:latitude))) / (cosDec * cosD(n:latitude))
-		if (sunrise) { if (cosH > 1) {print("Sun never rises"); return 999.0} }		//Sun never rises
-		else { if (cosH < -1) {print("Sun never sets"); return -999.0} }			//Sun never sets
+		if (sunrise) { if (cosH > 1) {print("Sun never rises"); return 999.0} }		//Sun never rises NIL
+		else { if (cosH < -1) {print("Sun never sets"); return -999.0} }			//Sun never sets  NIL
 		
 		// Step 7b. Finish calculating H and convert into Hours
 		var H : Float
@@ -200,7 +200,7 @@ import CoreLocation
 		while (UTC < 0) {UTC = UTC+24.0}
 		
 		utcHOUR = UTC		
-		return utcHOUR		//Float (or NIL = -999.0)
+		return utcHOUR		//Float (or NIL = -999.0) WTF why not NIL!?!!
 	
 	}
 	
@@ -241,13 +241,13 @@ import CoreLocation
 		
 		
 		// Calculate Julian Day																				// pDate = Julian Date for which to calculate Phase
-		let A = year / 100
+		let A = Float(year) / 100.0
 		let B = A / 4
 		let C = 2-A+B
 		let E = 365.25 * (Float(year)+4716)
 		let Fj = 30.6001 * (Float(month)+1)
 		let JD = Float(C)+Float(day)+E+Fj-1524.5
-		let pDate = JD + 1																					// off by 1
+		let pDate = JD + 2																					// off by 2!? WTF!? 
 		
 		
 		//-- Astronomical constants --// 
@@ -338,8 +338,7 @@ import CoreLocation
 		let mSun_distance = sun_dist
 		let mSun_angular_diameter = sun_angular_diameter
 		
-		print("Astronomical Moon Phase • mPhase \(mPhase) mIlluminated \(mIlluminated) mAge \(mAge) mDistance \(mDistance) moonAngDiam \(mAngular_diameter) mSunDist \(mSun_distance) mSunAngDiam \(mSun_angular_diameter) ")
-		
+		//print("Astronomical Moon Phase • pDate \(pDate) eDay \(eDay) mPhase \(mPhase) mIlluminated \(mIlluminated) mAge \(mAge) mDistance \(mDistance) moonAngDiam \(mAngular_diameter) mSunDist \(mSun_distance) mSunAngDiam \(mSun_angular_diameter) ")
 				
 		// calculate days since the last new moon
 		//let daysSinceNew = JD - 2451549.5   // how we did it with Synodic Calculation
@@ -351,15 +350,14 @@ import CoreLocation
 		// Multpily Fractional Part by Moonphase(29.53days) to Find Days Into Cycle
 		let newMoonFrac : Float = newMoons.truncatingRemainder(dividingBy:1)
 		let moonDays : Float = newMoonFrac * synodic_month
-		
-		print("Moon Days \(moonDays)")
+		//print("Moon Days \(moonDays)")
 		
 		return moonDays
 	}
 	
 	
 	// Handy Maths Functions for MoonPhase()
-	func fixangle(angle: Float) -> Float { return angle - 360.0 * floor(angle*360.0) }
+	func fixangle(angle: Float) -> Float { return angle - 360.0 * floor(angle/360.0) }
 	func torad(degrees: Float) -> Float { return degrees * Float.pi / 180.0 }
 	func todeg(radians: Float) -> Float { return radians * 180.0 / Float.pi }
 	func dsin(degrees: Float) -> Float { return sin( degrees * Float.pi / 180.0 ) }
@@ -388,16 +386,16 @@ import CoreLocation
 	
 	//-- Synodic Moon Phase (Less Accurate Method) -----// 
 	
-    func moonDays(month:Int, day:Int, year:Int) -> Float
+    func moonDayse(month:Int, day:Int, year:Int) -> Float
     {
 		// calculate Julian Day
-		let A = year / 100
+		let A = Float(year) / 100.0
 		let B = A / 4
 		let C = 2-A+B
 		let E = 365.25 * (Float(year)+4716)
 		let F = 30.6001 * (Float(month)+1)
 		var JD = Float(C)+Float(day)+E+F-1524.5
-		JD = JD + 1		// off by 1
+		JD = JD + 2		// off by 2  (Synodic Only!?)
 		
 		let synodic_month : Float = 29.53058770576
 		
@@ -440,8 +438,8 @@ import CoreLocation
 			}
 			
 		catch let error as NSError {
-			//print("Could not read .sunrc -> Error: \(error)")
-			return "43.6532 -79.3832 -5 1 Toronto"
+			print("Error: Could not read .sunrc")
+			//return "43.6532 -79.3832 -5 1 Toronto"
 			}
 		
 		return firstLine
@@ -452,13 +450,16 @@ import CoreLocation
 	{
 		print("SUNRISE: Calculates Sunrise Sunset + Moonphase  ©2024 johnrolandpenner")
 		print("Usage: ")
-		print("sunrise [mm dd yyyy] [latitude longitude timezone verbose]")
+		print("sunrise [mm dd yyyy] [latitude longitude timezone verbose astro]")
 		print("e.g. sunrise 12 18 2021 43.6532 -79.3832 -5 1")
 		print("e.g. sunrise 12 18 2021")
 		print("sunrise --help  Displays this Help")
 		print("sunrise without arguments will use today's date, and look for ")
 		print("a .sunrc file in $HOME to supply: Latitude Longitude Timezone Verbose City")
-		print("echo \"43.6532 -79.3832 -5 1 Toronto\" > .sunrc")
+		print("echo \"43.6532 -79.3832 -5 1 Toronto 0\" > .sunrc")
+		print("sunrise with a verbose of 4 prints a monthly chart. Example: ")
+		print("sunrise 9 30 2024 43.6532 -79.3832 -5 4 0")
+		print("setting astro to 1 changes moonPhase() to astronomical calculation")
 		print("sunrise with only [mm dd yyyy] uses location from .sunrc")
 		return
 	}
@@ -467,6 +468,7 @@ import CoreLocation
 func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Float, Zone: Float, Verbose: Int)
 	{
 		let synodic_month : Float = 29.53058770576
+		var moonDays : Float = 0
 		
 		// 0 = EMOJI Compact
 		if Verbose == 0 {
@@ -491,8 +493,12 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// Moonphase print ("Moonphase: 🌑🌒🌓🌔🌕🌖🌗🌘🌑 ") 
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
-			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
-			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)			
+			
+			if (astroCalcu == false) {
+				moonDays = moonDayse(month:Month, day:Day, year:Year)
+				} else {
+				moonDays = moonPhase(month:Month, day:Day, year:Year)
+				}
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -528,8 +534,12 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// Moonphase print ("Moonphase: 🌑🌒🌓🌔🌕🌖🌗🌘🌑 ") 
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
-			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
-			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
+			//let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
+			if (astroCalcu == false) {
+				moonDays = moonDayse(month:Month, day:Day, year:Year)
+				} else {
+				moonDays = moonPhase(month:Month, day:Day, year:Year)
+				}
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -567,8 +577,11 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// Moonphase print ("Moonphase: 🌑🌒🌓🌔🌕🌖🌗🌘🌑 ") 
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
-			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
-			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
+			if (astroCalcu == false) {
+				moonDays = moonDayse(month:Month, day:Day, year:Year)
+				} else {
+				moonDays = moonPhase(month:Month, day:Day, year:Year)
+				}
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -609,8 +622,11 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			// Moonphase print ("Moonphase: 🌑🌒🌓🌔🌕🌖🌗🌘🌑 ") 
 			// New[0], Waning Crescent [1-, Last Quarter, Waning Gibbous
 			// Full Waxing Gibbous, First Quarter, Waxing Crescent, New[29.5]
-			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
-			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
+			if (astroCalcu == false) {
+				moonDays = moonDayse(month:Month, day:Day, year:Year)
+				} else {
+				moonDays = moonPhase(month:Month, day:Day, year:Year)
+				}
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -644,8 +660,11 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 			var DSTstr : String = ""; if (isDST) {DSTstr = "DST"}
 			
 			// Moonphase print ("Moonphase: 🌑🌒🌓🌔🌕🌖🌗🌘🌑 ")
-			let moonDays : Float = moonDays(month:Month, day:Day, year:Year)
-			//let moonDays : Float = moonPhase(month:Month, day:Day, year:Year)
+			if (astroCalcu == false) {
+				moonDays = moonDayse(month:Month, day:Day, year:Year)
+				} else {
+				moonDays = moonPhase(month:Month, day:Day, year:Year)
+				}
 			let moonDaysPadded : String = String(format: "%.2f", moonDays)
 			let Moonphase : String = moonDay2emoji(day:moonDays)
 			let moonDaysInt : Int = Int(moonDays)
@@ -667,18 +686,19 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 	
 	// Manage ARGS
 	let argCount = CommandLine.argc
-	var timezonee : Float = -5	// UTC+0 = GMT Greenwich Meridian Time Default
-	let sunrise = true		   		// calculate sunrise[true] or sunset[false]
-	let twilight = false    		// calculate twilight[true] or sunrise-sunset[false]
-	var verbose : Bool = false	// default less verbose
-	var isDST : Bool					// we set this globally defining it here in MAIN
+	var timezonee : Float = -5		// UTC+0 = GMT Greenwich Meridian Time Default
+	let sunrise = true		   			// calculate sunrise[true] or sunset[false]
+	let twilight = false    			// calculate twilight[true] or sunrise-sunset[false]
+	var verbose : Bool = false		// default less verbose
+	var astroCalcu : Bool = false	// default use Synodic Moonphase (true = Astronomical)
+	var isDST : Bool						// we set this globally defining it here in MAIN
 	
 	// Sunrise = calcSunrise(Latitude, Longitude, Date, True, False)
 	// Sunset  = calcSunrise(Latitude, Longitude, Date, False, False)
 	// MorningTwilight = calcSunrise(Latitude, Longitude, Date, True, True)
 	// EveningTwilight = calcSunrise(Latitude, Longitude, Date, False, True)
 	
-	if (argCount != 1 && argCount != 4 && argCount != 8) 
+	if (argCount != 1 && argCount != 4 && argCount != 9) 
 	{
 		printHelp()
 		}
@@ -706,7 +726,6 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 		isDST = tzone.isDaylightSavingTime(for: motherDemoDate)
 		
 		printOutput(Month: month, Day: day, Year: year, Latitude: latitude, Longitude: longitude, Zone: timezonee, Verbose: verbose)
-		
 		}
 		
 	if (argCount == 4) {
@@ -739,7 +758,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 		
 		}
 
-	if (argCount == 8) {
+	if (argCount == 9) {
 		
 		let argument1 = CommandLine.arguments[1]	//MONTH [1..12]
 		let argument2 = CommandLine.arguments[2]	//DAY   [1..31]
@@ -748,6 +767,7 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 		let argument5 = CommandLine.arguments[5]	//LONGITUDE
         let argument6 = CommandLine.arguments[6] //TIMEZONE
 		let argument7 = CommandLine.arguments[7]	//VERBOSE
+		let argument8 = CommandLine.arguments[8]	//ASTROCALC
 		
 		let month = Int(argument1)!
 		let day = Int(argument2)!
@@ -757,6 +777,9 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 		let longitude = Float(argument5)!
         let timezonee = Float(argument6)!
 		let verbose : Int = Int(NSString(string:argument7).intValue)
+		let astroCalc : Int = Int(NSString(string:argument8).intValue)
+		
+		if astroCalc == 1 { astroCalcu = true }
 		
 		// DST Daylight Savings Time Detection (uses DATE, and CURRENT TIMEZONE)
 		let userCalendar = Calendar.current	// TimeZone Calculated by the Calendar Class
@@ -769,8 +792,8 @@ func printOutput(Month: Int, Day: Int, Year: Int, Latitude: Float, Longitude: Fl
 		
 		//LOOP DAYS to test we are getting right results for all days
 		if verbose == 4 {
-			for day in 1...28 {
-				printOutput(Month: month, Day: day, Year: year, Latitude: latitude, Longitude: longitude, Zone: timezonee, Verbose: verbose)
+			for days in 1...28 {
+				printOutput(Month: month, Day: days, Year: year, Latitude: latitude, Longitude: longitude, Zone: timezonee, Verbose: verbose)
 				}
 			}
 			
