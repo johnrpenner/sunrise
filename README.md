@@ -1,4 +1,4 @@
-# sunrise 2.1
+# sunrise 2.5
 sunrise is Swift commandline that computes sunrise sunset times given latitude longitude and date. It also computes Synodic Lunar Phase. 
 
 The Sunrise Sunset code is written entirely by me based off a FutureBASIC implementation I wrote in 2001. It was literally implemented from a manual method decscribed in the Nautical Almanac for Computers (1990), published by the United States Naval Observatory in Washington. 
@@ -45,10 +45,15 @@ USE CASES:
 you can use it to turn things on in the morning, and turn them off again at night. 
 i currently put the sunrise command in my .bashrc so it runs every time i open a terminal: 
 
-Last login: Sun Sep 22 10:36:30 on ttys000
-🌅 7:05  🌃 19:13  🌖 64% 
+Last login: Mon Sep 30 22:51:11 on ttys002
+🌅 7:14  🌃 18:58  🌘 95% 
 Death-Star:~ john$
 
-Currently in progress — an Astronimical computation of the Moonphase(). Currently it compiles, but it doenst return compatible results and needs Debugging!! Once this is completed, I will make a 2.5 release — which ideally should be built into a macOS BREW command: brew sunrise — this is the goal. 🌅 
+Version 2.5 Adds Astronimical computation of the Moonphase() which currently seems to work. 
 
-peace out 🍃 jrp on toronto island [ September 26, 2024 ]
+sunrise 9 30 2024 43.6532 -79.3832 -5 4 0  //synodic moonPhase
+sunrise 9 30 2024 43.6532 -79.3832 -5 4 1  //astronomical moonPhase
+
+Once testing is complete, will build into a macOS BREW command: brew sunrise — this is the goal. 🌅 
+
+peace out 🍃 jrp on toronto island [ September 30, 2024 ]
