@@ -28,16 +28,16 @@ sunrise --help  Displays this Help
 sunrise without arguments will use today's date, and look for 
 a .sunrc file in $HOME to supply: Latitude Longitude Timezone Verbose City
 
-echo "43.6532 -79.3832 -5 1 Toronto" > .sunrc
+echo "43.6532 -79.3832 -5 1 Toronto 0" > .sunrc
 
 sunrise with only [mm dd yyyy] uses location from .sunrc
 
 The command is configured by creating a .sunrc file in your ~ home directory. 
 
 cat .sunrc
-43.6532 -79.3832 -5 0 Toronto
+43.6532 -79.3832 -5 0 Toronto 0
 
-five parameters separated by spaces: Latitude, Longitude, Time Zone (EST = -5), Verbosity Level, Location Label
+six parameters separated by spaces: Latitude, Longitude, Time Zone (EST = -5), Verbosity, Location Label, Astro
 
 
 USE CASES: 
